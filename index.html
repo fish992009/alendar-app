@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>交互式日历表</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+        }
+        
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            padding: 20px;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            color: white;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .header p {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+        
+        .calendar-container {
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+        
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 25px;
+            background: linear-gradient(to right, #4a00e0, #8e2de2);
+            color: white;
+        }
+        
+        .calendar-header h2 {
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        select, button {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 6px;
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        select {
+            background-color: rgba(255, 255, 255, 0.15);
+        }
+        
+        select option {
+            color: #333;
+        }
+        
+        button:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .calendar {
+            padding: 20px;
+        }
+        
+        .weekdays {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #555;
+            font-size: 1.1rem;
+        }
+        
+        .days {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+        }
+        
+        .day {
+            height: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 500;
+            position: relative;
+        }
+        
+        .day:hover {
+            background-color: #f0f0f0;
+            transform: scale(1.05);
+        }
+        
+        .current-month {
+            background-color: white;
+            color: #333;
+        }
+        
+        .other-month {
+            background-color: #f8f9fa;
+            color: #aaa;
+        }
+        
+        .today {
+            background-color: #4a00e0;
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 4px 8px rgba(74, 0, 224, 0.3);
+        }
+        
+        .selected {
+            background-color: #8e2de2;
+            color: white;
+        }
+        
+        .event-marker {
+            position: absolute;
+            bottom: 5px;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background-color: #ff4757;
+        }
+        
+        .notes {
+            margin-top: 25px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+        }
+        
+        .notes h3 {
+            color: #4a00e0;
+            margin-bottom: 10px;
+            font-size: 1.3rem;
+        }
+        
+        .notes p {
+            color: #666;
+            line-height: 1.6;
+        }
+        
+        @media (max-width: 600px) {
+            .calendar-header {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .day {
+                height: 40px;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>交互式日历表</h1>
+            <p>这是一个使用HTML、CSS和JavaScript创建的交互式日历，您可以选择年份和月份查看不同的日期。</p>
+        </div>
+        
+        <div class="calendar-container">
+            <div class="calendar-header">
+                <h2 id="current-month-year">2023年10月</h2>
+                <div class="controls">
+                    <select id="year-select"></select>
+                    <select id="month-select"></select>
+                    <button id="today-btn">返回今天</button>
+                </div>
+            </div>
+            
+            <div class="calendar">
+                <div class="weekdays">
+                    <div>周日</div>
+                    <div>周一</div>
+                    <div>周二</div>
+                    <div>周三</div>
+                    <div>周四</div>
+                    <div>周五</div>
+                    <div>周六</div>
+                </div>
+                <div class="days" id="days-container"></div>
+            </div>
+            
+            <div class="notes">
+                <h3>上传到GitHub的步骤</h3>
+                <p>1. 将上面的代码保存为index.html文件</p>
+                <p>2. 访问<a href="https://github.com" target="_blank">GitHub官网</a>并登录您的账户</p>
+                <p>3. 点击右上角的"+"号，选择"New repository"</p>
+                <p>4. 填写仓库名称（如"calendar-app"），添加描述，选择公开或私有</p>
+                <p>5. 点击"Create repository"按钮创建仓库</p>
+                <p>6. 在仓库页面点击"Add file" > "Upload files"</p>
+                <p>7. 将index.html文件拖拽到上传区域</p>
+                <p>8. 点击"Commit changes"完成上传</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 获取DOM元素
+        const yearSelect = document.getElementById('year-select');
+        const monthSelect = document.getElementById('month-select');
+        const todayBtn = document.getElementById('today-btn');
+        const currentMonthYear = document.getElementById('current-month-year');
+        const daysContainer = document.getElementById('days-container');
+
+        // 当前日期
+        let currentDate = new Date();
+        let selectedYear = currentDate.getFullYear();
+        let selectedMonth = currentDate.getMonth();
+
+        // 初始化年份选项（前后10年）
+        function initYearOptions() {
+            const currentYear = currentDate.getFullYear();
+            for (let i = currentYear - 10; i <= currentYear + 10; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = i + '年';
+                if (i === selectedYear) {
+                    option.selected = true;
+                }
+                yearSelect.appendChild(option);
+            }
+        }
+
+        // 初始化月份选项
+        function initMonthOptions() {
+            const monthNames = ['1月', '2月', '3月', '4月', '5月', '6月', 
+                               '7月', '8月', '9月', '10月', '11月', '12月'];
+            
+            monthNames.forEach((month, index) => {
+                const option = document.createElement('option');
+                option.value = index;
+                option.textContent = month;
+                if (index === selectedMonth) {
+                    option.selected = true;
+                }
+                monthSelect.appendChild(option);
+            });
+        }
+
+        // 生成日历
+        function generateCalendar() {
+            // 更新标题
+            currentMonthYear.textContent = `${selectedYear}年${selectedMonth + 1}月`;
+            
+            // 清空日历容器
+            daysContainer.innerHTML = '';
+            
+            // 获取当月第一天和最后一天
+            const firstDay = new Date(selectedYear, selectedMonth, 1);
+            const lastDay = new Date(selectedYear, selectedMonth + 1, 0);
+            
+            // 获取当月第一天是星期几（0是星期日）
+            const firstDayOfWeek = firstDay.getDay();
+            
+            // 获取上个月的最后几天
+            const prevMonthLastDay = new Date(selectedYear, selectedMonth, 0).getDate();
+            
+            // 添加上个月的日期
+            for (let i = firstDayOfWeek - 1; i >= 0; i--) {
+                const dayElement = document.createElement('div');
+                dayElement.className = 'day other-month';
+                dayElement.textContent = prevMonthLastDay - i;
+                daysContainer.appendChild(dayElement);
+            }
+            
+            // 添加当月的日期
+            for (let i = 1; i <= lastDay.getDate(); i++) {
+                const dayElement = document.createElement('div');
+                dayElement.className = 'day current-month';
+                dayElement.textContent = i;
+                
+                // 标记今天
+                if (selectedYear === currentDate.getFullYear() && 
+                    selectedMonth === currentDate.getMonth() && 
+                    i === currentDate.getDate()) {
+                    dayElement.classList.add('today');
+                }
+                
+                // 随机添加一些事件标记
+                if (Math.random() > 0.7) {
+                    const eventMarker = document.createElement('div');
+                    eventMarker.className = 'event-marker';
+                    dayElement.appendChild(eventMarker);
+                }
+                
+                daysContainer.appendChild(dayElement);
+            }
+            
+            // 添加下个月的日期（补齐剩余格子）
+            const totalCells = 42; // 6行×7列
+            const remainingCells = totalCells - (firstDayOfWeek + lastDay.getDate());
+            
+            for (let i = 1; i <= remainingCells; i++) {
+                const dayElement = document.createElement('div');
+                dayElement.className = 'day other-month';
+                dayElement.textContent = i;
+                daysContainer.appendChild(dayElement);
+            }
+        }
+
+        // 事件监听
+        yearSelect.addEventListener('change', function() {
+            selectedYear = parseInt(this.value);
+            generateCalendar();
+        });
+
+        monthSelect.addEventListener('change', function() {
+            selectedMonth = parseInt(this.value);
+            generateCalendar();
+        });
+
+        todayBtn.addEventListener('click', function() {
+            currentDate = new Date();
+            selectedYear = currentDate.getFullYear();
+            selectedMonth = currentDate.getMonth();
+            
+            yearSelect.value = selectedYear;
+            monthSelect.value = selectedMonth;
+            
+            generateCalendar();
+        });
+
+        // 初始化
+        initYearOptions();
+        initMonthOptions();
+        generateCalendar();
+    </script>
+</body>
+</html>
